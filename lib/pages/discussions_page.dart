@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:true_purity/helpers/widgets.dart';
 
 class DiscussionsPage extends StatefulWidget {
   const DiscussionsPage({super.key});
@@ -12,31 +14,54 @@ class _DiscussionsPageState extends State<DiscussionsPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = MediaQuery.of(context).size.height < 720;
-
-    return SingleChildScrollView(
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-          ),
-          constraints: isMobile
-              ? null
-              : BoxConstraints(maxWidth: (screenWidth * 0.63) - 60),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MessageBubble(text: 'Hi'),
-              MessageBubble(text: 'Sup'),
-              MessageBubble(text: 'How is it going'),
-              MessageBubble(text: 'cool'),
-              MessageBubble(text: 'Hi'),
-            ],
-          ),
+    return SizedBox(
+      width: isMobile ? null : (screenWidth * 0.63) - 60,
+      child: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 33,
+            ),
+            CustomText(
+              text: 'Under development!',
+              fontSize: 23,
+              color: Colors.black,
+            ),
+            SizedBox(height: 10),
+            Icon(
+              FontAwesomeIcons.personDigging,
+              size: 50,
+            ),
+          ],
         ),
       ),
     );
+    // return SingleChildScrollView(
+    //   child: Align(
+    //     alignment: Alignment.centerLeft,
+    //     child: Container(
+    //       padding: const EdgeInsets.all(10),
+    //       decoration: BoxDecoration(
+    //         borderRadius: const BorderRadius.all(Radius.circular(8)),
+    //       ),
+    //       constraints: isMobile
+    //           ? null
+    //           : BoxConstraints(maxWidth: (screenWidth * 0.63) - 60),
+    //       child: const Column(
+    //         crossAxisAlignment: CrossAxisAlignment.start,
+    //         children: [
+    //           MessageBubble(text: 'Hi'),
+    //           MessageBubble(text: 'Sup'),
+    //           MessageBubble(text: 'How is it going'),
+    //           MessageBubble(text: 'cool'),
+    //           MessageBubble(text: 'Hi'),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }
 

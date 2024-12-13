@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
-import 'package:overcome_lust/auth/auth_page.dart';
-import 'package:overcome_lust/pages/homepage.dart';
+
+import '../auth/auth_page.dart';
+import '../pages/homepage.dart';
 
 GoRouter router = GoRouter(
   initialLocation: '/',

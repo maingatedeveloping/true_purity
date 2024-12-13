@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:overcome_lust/custom_theme/color_palette.dart';
+
+import 'color_palette.dart';
 
 class CustomButton extends StatefulWidget {
   final String text;

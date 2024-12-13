@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:overcome_lust/pages/homepage.dart';
 
 import '../custom_theme/color_palette.dart';
+import '../custom_theme/custom_textfield.dart';
 
 class AuthPage extends StatefulWidget {
   final bool isLogIn;
@@ -25,7 +25,7 @@ class _AuthPageState extends State<AuthPage> {
   TextEditingController dobController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // GlobalKey to manage form state
+  final _formKey = GlobalKey<FormState>();
 
   Future<void> _pickDateOfBirth(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -79,175 +79,189 @@ class _AuthPageState extends State<AuthPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: IntrinsicHeight(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            constraints: BoxConstraints(maxWidth: 500),
-            decoration: BoxDecoration(
-              border: isMobile ? null : Border.all(color: Colors.blue),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Form(
-              key: _formKey, // Assign the form key to the Form widget
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'True Purity',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  CustomTextField(
-                    controller: emailController,
-                    label: 'Email',
-                    validator: _validateEmail,
-                    obscureText: false,
-                    suffixIcon: null,
-                  ),
-
-                  SizedBox(height: 20),
-
-                  // Password TextField with a visibility toggle
-                  CustomTextField(
-                    controller: passwordController,
-                    label: 'Password',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    obscureText: !viewPassword,
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          viewPassword = !viewPassword;
-                        });
-                      },
-                      child: Icon(
-                        viewPassword
-                            ? FontAwesomeIcons.eyeSlash
-                            : FontAwesomeIcons.eye,
-                        size: 20,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              constraints: BoxConstraints(maxWidth: 500),
+              decoration: BoxDecoration(
+                border: isMobile ? null : Border.all(color: Colors.blue),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Form(
+                key: _formKey,
+                // autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'True Purity',
+                        style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 20),
 
-                  if (!isLogIn) SizedBox(height: 20),
-
-                  if (!isLogIn)
                     CustomTextField(
-                      controller: usernameController,
-                      label: 'Username',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your username';
-                        }
-                        return null;
-                      },
+                      controller: emailController,
+                      label: 'Email',
+                      validator: _validateEmail,
                       obscureText: false,
                       suffixIcon: null,
                     ),
 
-                  if (!isLogIn) SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Date of Birth TextField
-                  if (!isLogIn)
-                    TextField(
-                      controller: dobController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Date of Birth',
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: ColorPalette.accent,
-                              width: 1.5), // Color when not focused
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 2), // Color when focused
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.calendar_today),
-                          onPressed: () => _pickDateOfBirth(context),
+                    // Password TextField with a visibility toggle
+                    CustomTextField(
+                      controller: passwordController,
+                      label: 'Password',
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 4) {
+                          return value!.isEmpty
+                              ? 'Please enter your password'
+                              : 'Password must be more than 3 characters';
+                        }
+                        return null;
+                      },
+                      obscureText: !viewPassword,
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            viewPassword = !viewPassword;
+                          });
+                        },
+                        child: Icon(
+                          viewPassword
+                              ? FontAwesomeIcons.eyeSlash
+                              : FontAwesomeIcons.eye,
+                          size: 20,
                         ),
                       ),
                     ),
 
-                  SizedBox(height: 40),
+                    if (!isLogIn) SizedBox(height: 20),
 
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              // Only proceed if the form is valid
-                              if (isLogIn) {
-                                // Handle login logic
-                                logIn();
-                              } else {
-                                // Handle logout logic
-                                signUp(context);
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                    if (!isLogIn)
+                      CustomTextField(
+                        controller: usernameController,
+                        label: 'Username',
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length < 4) {
+                            return value!.isEmpty
+                                ? 'Please enter your username'
+                                : 'Username must be more than 3 characters';
+                          }
+                          return null;
+                        },
+                        obscureText: false,
+                        suffixIcon: null,
+                      ),
+
+                    if (!isLogIn) SizedBox(height: 20),
+
+                    // Date of Birth TextField
+                    if (!isLogIn)
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please choose your date of birth';
+                          }
+                          return null;
+                        },
+                        controller: dobController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Date of Birth',
+                          border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: ColorPalette.accent,
+                                width: 1.5), // Color when not focused
                           ),
-                          child: isLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(
-                                  isLogIn ? 'Sing in' : 'Sing up',
-                                  style: TextStyle(
-                                    color: ColorPalette.secondary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 2), // Color when focused
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () => _pickDateOfBirth(context),
+                          ),
                         ),
-                        SizedBox(height: 7),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isLogIn = !isLogIn;
-                            });
-                          },
-                          child: Text(
-                            isLogIn ? 'Sign up instead' : 'Sign in instead',
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: ColorPalette.accent,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.bold,
+                      ),
+
+                    SizedBox(height: 40),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState?.validate() ?? false) {
+                                if (isLogIn) {
+                                  logIn();
+                                } else {
+                                  signUp(context);
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                             ),
+                            child: isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    isLogIn ? 'Sign in' : 'Sign up',
+                                    style: TextStyle(
+                                      color: ColorPalette.secondary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                    ),
+                                  ),
                           ),
-                        )
-                      ],
+                          SizedBox(height: 7),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isLogIn = !isLogIn;
+                              });
+                            },
+                            child: Text(
+                              isLogIn ? 'Sign up instead' : 'Sign in instead',
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: ColorPalette.accent,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -258,6 +272,9 @@ class _AuthPageState extends State<AuthPage> {
 
   // Login Method
   Future<void> logIn() async {
+    setState(() {
+      isLoading = true;
+    });
     final auth = FirebaseAuth.instance;
     if (_formKey.currentState?.validate() ?? false) {
       try {
@@ -267,10 +284,10 @@ class _AuthPageState extends State<AuthPage> {
           password: passwordController.text,
         );
         setState(() {
-          isLoading = true;
+          isLoading = false;
         });
 
-        context.go('/');
+        context.pushReplacement('/');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Incorrect email or password')),
@@ -298,7 +315,6 @@ class _AuthPageState extends State<AuthPage> {
           password: passwordController.text,
         );
 
-        // Get the user ID (UID) for Firestore document
         String userId = userCredential.user!.uid;
 
         // Save user data to Firestore
@@ -307,12 +323,13 @@ class _AuthPageState extends State<AuthPage> {
           'email': emailController.text,
           'dob': dobController.text,
           'createdAt': FieldValue.serverTimestamp(),
+          'is_admin': false,
         });
         setState(() {
           isLoading = false;
         });
 
-        context.go('/');
+        context.pushReplacement('/');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error signing up!')),
@@ -322,47 +339,5 @@ class _AuthPageState extends State<AuthPage> {
         });
       }
     }
-  }
-}
-
-// Custom TextField Widget
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String? Function(String?)? validator;
-  final bool obscureText;
-  final Widget? suffixIcon;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.label,
-    required this.validator,
-    required this.obscureText,
-    this.suffixIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: ColorPalette.accent, width: 1.5), // Color when not focused
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide:
-              BorderSide(color: Colors.black, width: 2), // Color when focused
-        ),
-        labelText: label,
-        suffixIcon: suffixIcon,
-      ),
-      validator: validator,
-      obscureText: obscureText,
-    );
   }
 }

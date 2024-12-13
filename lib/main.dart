@@ -4,7 +4,7 @@ import 'routing/go_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: "AIzaSyAhASD5vySVN8ww-Htv9rKdhY1sU48QxRc",
       appId: "1:249656381180:web:cecc56b678ebe279d55179",
