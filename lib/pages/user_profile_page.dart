@@ -71,12 +71,50 @@ class _UserProfileState extends State<UserProfile> {
       return const Center(child: CircularProgressIndicator(color: Colors.blue));
     }
     return Container(
-      padding: const EdgeInsets.only(top: 10, right: 10),
+      alignment: Alignment.topLeft,
+      padding: const EdgeInsets.all(10),
       constraints: widget.constraints,
-      child: Wrap(
-        alignment: WrapAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
+          Align(
+            alignment: Alignment.topRight,
+            child: GestureDetector(
+              onTap: () {
+                widget.scaffoldKey?.currentState!.closeDrawer();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        alignment: Alignment.center,
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+
+                        backgroundColor: ColorPalette.background,
+                        // contentPadding: const EdgeInsets.all(0),
+                        content: IntrinsicWidth(
+                          child: EditProfileContent(
+                            userInfo: {
+                              'username': userName,
+                              'imageUrl': imageUrl,
+                            },
+                          ),
+                        ),
+                      );
+                    });
+              },
+              child: const Icon(
+                FontAwesomeIcons.penToSquare,
+                color: Colors.black,
+                size: 19,
+                weight: 30,
+              ),
+            ),
+          ),
+          Wrap(
+            alignment: WrapAlignment.start,
             children: [
               Container(
                 width: imageSize,
@@ -94,76 +132,25 @@ class _UserProfileState extends State<UserProfile> {
                         size: 25,
                       ),
               ),
-              Positioned(
-                left: imageSize - 18,
-                top: imageSize - 18,
-                child: GestureDetector(
-                  onTap: () {
-                    widget.scaffoldKey?.currentState!.closeDrawer();
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            alignment: Alignment.center,
-
-                            // surfaceTintColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  10.0), // Rounded corners
-                            ),
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Edit Profile',
-                                  style: TextStyle(
-                                    fontSize: 17.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                CloseButton()
-                              ],
-                            ),
-                            backgroundColor: ColorPalette.background,
-                            // contentPadding: const EdgeInsets.all(0),
-                            content: IntrinsicHeight(
-                                child: EditProfileContent(
-                              userInfo: {
-                                'username': userName,
-                                'email': userEmail,
-                                'imageUrl': imageUrl,
-                              },
-                            )),
-                          );
-                        });
-                  },
-                  child: const Icon(
-                    FontAwesomeIcons.penToSquare,
-                    color: Colors.black,
-                    size: 15,
+              const SizedBox(width: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  Text(
+                    userName,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                ),
+                  const SizedBox(height: 5),
+                  Text(
+                    userEmail,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              Text(
-                userName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                userEmail,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 10),
             ],
           ),
         ],
@@ -216,8 +203,10 @@ class _EditProfileContentState extends State<EditProfileContent> {
     setState(() {
       isLoading = true;
     });
-    if (nameController.text == widget.userInfo['username']!.toLowerCase())
+    if (nameController.text.toLowerCase() ==
+        widget.userInfo['username']!.toLowerCase()) {
       return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       await _firestore.collection('users').doc(currentUserId).update({
         'username': nameController.text,
@@ -287,132 +276,149 @@ class _EditProfileContentState extends State<EditProfileContent> {
   void saveUserInfo() async {
     await saveName();
     await saveUserPhoto();
+    if (nameController.text.length < 4) return;
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    // bool isMobile = MediaQuery.of(context).size.width < 720;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(width: 2, color: Colors.black),
-              ),
-              child: _pickedImage != null
-                  ? Image.memory(
-                      _pickedImage!.bytes!,
-                      // width: 300,
-                      // height: 300,
-                      fit: BoxFit.cover,
-                    )
-                  : widget.userInfo['imageUrl'] != ''
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: Image.network(
-                            widget.userInfo['imageUrl']!,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const Icon(
-                          FontAwesomeIcons.user,
-                          size: 25,
-                        ),
-            ),
-            GestureDetector(
-              onTap: _pickImage,
-              child: CustomText(
-                text: 'Change Photo',
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-            )
-          ],
-        ),
-        SizedBox(height: 20),
-        Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Text(
-                  'Change user name',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  autofocus: true,
-                  controller: nameController,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length < 4) {
-                      return value!.isEmpty
-                          ? 'Please enter your username'
-                          : 'Username must be more than 3 characters';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            )),
-        SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.blue,
-                      ),
-                    )
-                  : CustomButton(
-                      text: 'Save',
-                      color: Colors.black,
-                      onPressed: () {
-                        saveUserInfo();
-                      },
-                      padding: EdgeInsets.all(5),
-                    ),
+              Text(
+                'Edit Profile',
+                style: TextStyle(
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              CloseButton(),
             ],
           ),
-        )
-      ],
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(width: 2, color: Colors.black),
+                ),
+                child: _pickedImage != null
+                    ? Image.memory(
+                        _pickedImage!.bytes!,
+                        // width: 300,
+                        // height: 300,
+                        fit: BoxFit.cover,
+                      )
+                    : widget.userInfo['imageUrl'] != ''
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.network(
+                              widget.userInfo['imageUrl']!,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : const Icon(
+                            FontAwesomeIcons.user,
+                            size: 25,
+                          ),
+              ),
+              TextButton(
+                onPressed: () {
+                  _pickImage();
+                },
+                child: CustomText(
+                  text: 'Change Photo',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 20),
+          Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Change user name',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: nameController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 4) {
+                        return value!.isEmpty
+                            ? 'Please enter your username'
+                            : 'Username must be more than 3 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              )),
+          SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                isLoading
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.blue,
+                        ),
+                      )
+                    : CustomButton(
+                        text: 'Save',
+                        color: Colors.black,
+                        onPressed: () {
+                          saveUserInfo();
+                        },
+                        padding:
+                            EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                      ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 // gDfQ6iIhGbiePCzhz3UdBPSRibU API SECRETE
 // 144854877539192   API KEY
 // CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@dnmoghdre
-
-
-
-
 
 
 

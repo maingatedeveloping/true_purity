@@ -133,7 +133,7 @@ class _HomePageContentState extends State<HomePageContent> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SelectableText(
-                              'WhatsApp: +233 591553347',
+                              'WhatsApp: +233 599347306',
                               style: TextStyle(fontSize: isMobile ? 17 : 20),
                             ),
                             SizedBox(height: 15),
@@ -155,16 +155,20 @@ class _HomePageContentState extends State<HomePageContent> {
                   ),
                   const SizedBox(height: 15),
                   const FaqTile(
-                      question: 'question',
-                      answer: 'there  would be an answer'),
+                      question:
+                          'What tools or resources does this website provide?',
+                      answer:
+                          'We provide tools like online support communities, and professional guidance. These resources help you stay focused on your goals and overcome challenges effectively.'),
                   const SizedBox(height: 10),
                   const FaqTile(
-                      question: 'question',
-                      answer: 'there  would be an answer'),
+                      question: 'Why should I quit porn and masturbation?',
+                      answer:
+                          'Quitting these habits can lead to improved mental clarity, better self-esteem, enhanced relationships, and increased productivity. Overuse of pornography can negatively affect dopamine regulation, which impacts motivation and mood. Eliminating these habits helps regain control over your life and improves your overall well-being.'),
                   const SizedBox(height: 10),
                   const FaqTile(
-                      question: 'question',
-                      answer: 'there  would be an answer'),
+                      question:
+                          'How much do i get to pay as a regiteration fee?',
+                      answer: '50 Cedis'),
                   const SizedBox(height: 30),
                   if (!isUserPresent)
                     Row(

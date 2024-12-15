@@ -173,7 +173,7 @@ class AboutPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SelectableText(
-                        'WhatsApp: +233 591553347',
+                        'WhatsApp: +233 599347306',
                         style: TextStyle(fontSize: isMobile ? 17 : 20),
                       ),
                       SizedBox(height: 15),

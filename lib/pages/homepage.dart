@@ -24,6 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _showOverlay = false;
   bool isAdmin = false;
 
   final List<Widget> pages = [
@@ -77,7 +78,20 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     fetchStatus();
+    checkUserLoginStatus();
     super.initState();
+  }
+
+  Future<void> checkUserLoginStatus() async {
+    setState(() {
+      _showOverlay = FirebaseAuth.instance.currentUser == null;
+    });
+    if (_showOverlay) {
+      await Future.delayed(Duration(seconds: 10));
+      setState(() {
+        _showOverlay = false;
+      });
+    }
   }
 
   @override
@@ -85,7 +99,6 @@ class _HomePageState extends State<HomePage> {
     bool isMobile = MediaQuery.of(context).size.width < 720;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    // final user = FirebaseAuth.instance.currentUser;
 
     return StreamBuilder(
         stream: FirebaseAuth.instance.userChanges(),
@@ -100,7 +113,10 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: [
                         if (isUserPresent)
-                          UserProfile(scaffoldKey: scaffoldKey),
+                          UserProfile(
+                            scaffoldKey: scaffoldKey,
+                            imagesSize: 70.0,
+                          ),
                         SingleChildScrollView(
                           child: Column(
                             children: [
@@ -168,8 +184,8 @@ class _HomePageState extends State<HomePage> {
                                         if (isUserPresent)
                                           CustomButton(
                                               padding: EdgeInsets.symmetric(
-                                                horizontal: 15,
-                                                vertical: 6,
+                                                horizontal: 25,
+                                                vertical: 3,
                                               ),
                                               text: 'Sign Out',
                                               color: Colors.black,
@@ -199,122 +215,157 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 : null,
-            body: Center(
-              child: isMobile
-                  ? pages[selectedPage]
-                  : Container(
-                      padding: const EdgeInsets.only(
-                          left: 10, right: 10, top: 0, bottom: 20),
-                      constraints: BoxConstraints(
-                          maxWidth: screenWidth * 0.8,
-                          maxHeight: screenHeight * 0.9),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            children: [
-                              if (isUserPresent)
-                                UserProfile(
-                                  constraints: BoxConstraints(
-                                      maxWidth: screenWidth * 0.17),
-                                  imagesSize: 75,
-                                ),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: SizedBox(
-                                    width: screenWidth * 0.17,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        if (isUserPresent)
-                                          Divider(
-                                              color: ColorPalette.secondary),
-                                        SizedBox(height: 20),
-                                        TabItem(
-                                          'Home',
-                                          0,
-                                          screenWidth,
-                                          scaffoldKey,
-                                          FontAwesomeIcons.house,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        TabItem(
-                                          'Discussions',
-                                          1,
-                                          screenWidth,
-                                          scaffoldKey,
-                                          FontAwesomeIcons.comment,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        TabItem(
-                                            'About',
-                                            2,
+            body: Stack(children: [
+              Center(
+                child: isMobile
+                    ? pages[selectedPage]
+                    : Container(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 10, top: 0, bottom: 20),
+                        constraints: BoxConstraints(
+                            maxWidth: screenWidth * 0.8,
+                            maxHeight: screenHeight * 0.9),
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                if (isUserPresent)
+                                  UserProfile(
+                                    constraints: BoxConstraints(
+                                        maxWidth: screenWidth * 0.17),
+                                    imagesSize: 75,
+                                  ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: SizedBox(
+                                      width: screenWidth * 0.17,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (isUserPresent)
+                                            Divider(
+                                                color: ColorPalette.secondary),
+                                          SizedBox(height: 20),
+                                          TabItem(
+                                            'Home',
+                                            0,
                                             screenWidth,
                                             scaffoldKey,
-                                            FontAwesomeIcons.circleInfo),
-                                        if (isUserPresent && isAdmin)
+                                            FontAwesomeIcons.house,
+                                          ),
                                           const SizedBox(height: 10),
-                                        if (isUserPresent && isAdmin)
                                           TabItem(
-                                              'Users',
-                                              3,
+                                            'Discussions',
+                                            1,
+                                            screenWidth,
+                                            scaffoldKey,
+                                            FontAwesomeIcons.comment,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          TabItem(
+                                              'About',
+                                              2,
                                               screenWidth,
                                               scaffoldKey,
-                                              FontAwesomeIcons.users),
-                                        SizedBox(height: 15),
-                                        Divider(
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(height: 15),
-                                        Column(
-                                          children: [
-                                            if (!isUserPresent)
+                                              FontAwesomeIcons.circleInfo),
+                                          if (isUserPresent && isAdmin)
+                                            const SizedBox(height: 10),
+                                          if (isUserPresent && isAdmin)
+                                            TabItem(
+                                                'Users',
+                                                3,
+                                                screenWidth,
+                                                scaffoldKey,
+                                                FontAwesomeIcons.users),
+                                          SizedBox(height: 15),
+                                          Divider(
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(height: 15),
+                                          Column(
+                                            children: [
+                                              if (!isUserPresent)
+                                                CustomButton(
+                                                    text: "Sign Up",
+                                                    color: Colors.black,
+                                                    onPressed: () {
+                                                      context.go('/sign_up');
+                                                    }),
+                                              const SizedBox(height: 10),
                                               CustomButton(
-                                                  text: "Sign Up",
+                                                  text: !isUserPresent
+                                                      ? 'Sign In'
+                                                      : "Sign Out",
                                                   color: Colors.black,
                                                   onPressed: () {
-                                                    context.go('/sign_up');
+                                                    isUserPresent
+                                                        ? logOut(
+                                                            context, isMobile)
+                                                        : context
+                                                            .go('/sign_in');
                                                   }),
-                                            const SizedBox(height: 10),
-                                            CustomButton(
-                                                text: !isUserPresent
-                                                    ? 'Sign In'
-                                                    : "Sign Out",
-                                                color: Colors.black,
-                                                onPressed: () {
-                                                  isUserPresent
-                                                      ? logOut(
-                                                          context, isMobile)
-                                                      : context.go('/sign_in');
-                                                }),
-                                          ],
-                                        ),
-                                      ],
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              height: screenHeight * 0.9 - 40,
+                              child: const VerticalDivider(color: Colors.white),
+                            ),
+                            const SizedBox(width: 10),
+                            pages[selectedPage],
+                          ],
+                        ),
+                      ),
+              ),
+              if (_showOverlay)
+                Center(
+                  child: IntrinsicHeight(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 0, bottom: 10, left: 10, right: 10),
+                      width: 250,
+                      height: 130,
+                      decoration: BoxDecoration(
+                        color: ColorPalette.accent,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: CloseButton(
+                              color: Colors.white,
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            height: screenHeight * 0.9 - 40,
-                            child: const VerticalDivider(color: Colors.white),
+                          Text(
+                            'Join us on the journey to overcome porn and masturbation starting today!',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
                           ),
-                          const SizedBox(width: 10),
-                          pages[selectedPage],
+                          SizedBox(height: 10)
                         ],
                       ),
                     ),
-            ),
+                  ),
+                )
+            ]),
           );
         });
   }
